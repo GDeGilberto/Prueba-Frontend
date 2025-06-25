@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../Environments/enviroment';
 import { LoginRequest, LoginResponse, User } from '../Models/auth/auth-module';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +13,19 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser$: Observable<User | null>;
+  private isBrowser: boolean;
 
-  constructor(private http: HttpClient) {
-    const storedUser = localStorage.getItem('currentUser');
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    let storedUser = null;
+    
+    if (this.isBrowser) {
+      storedUser = localStorage.getItem('currentUser');
+    }
+    
     this.currentUserSubject = new BehaviorSubject<User | null>(
       storedUser ? JSON.parse(storedUser) : null
     );
@@ -29,13 +40,16 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/Usuario/login`, credentials)
       .pipe(
         tap(response => {
-          localStorage.setItem('token', response.token);
           const user: User = {
             id: response.id,
             email: response.email,
             nombreUsuario: response.nombreUsuario
           };
-          localStorage.setItem('currentUser', JSON.stringify(user));
+          
+          if (this.isBrowser) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('currentUser', JSON.stringify(user));
+          }
 
           this.currentUserSubject.next(user);
         }),
@@ -101,17 +115,25 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
+    if (this.isBrowser) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+    }
     this.currentUserSubject.next(null);
   }
 
   isLoggedIn(): boolean {
+    if (!this.isBrowser) {
+      return false;
+    }
     const token = localStorage.getItem('token');
     return !!token;
   }
 
   getToken(): string | null {
+    if (!this.isBrowser) {
+      return null;
+    }
     return localStorage.getItem('token');
   }
 }
