@@ -89,6 +89,17 @@ export class AuthService {
       );
   }
 
+  updateUsuario(id: number, userData: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/Usuario/${id}`, userData)
+      .pipe(
+        tap(response => {
+        }),
+        catchError(error => {
+          return throwError(() => new Error(error.error?.message || 'Error al actualizar usuario'));
+        })
+      );
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');

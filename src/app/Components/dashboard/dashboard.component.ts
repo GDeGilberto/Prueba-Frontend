@@ -8,6 +8,7 @@ import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +18,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../Services/auth';
 import { Usuario, UsuarioTableData, UsuarioEstatus, UsuarioSexo } from '../../Models/usuario/usuario.model';
 import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.component';
@@ -33,6 +35,7 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatOptionModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -41,7 +44,8 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
     MatDialogModule,
     MatMenuModule,
     MatTooltipModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -159,14 +163,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   editarUsuario(usuario: UsuarioTableData): void {
     const dialogRef = this.dialog.open(EditUserDialogComponent, {
-      width: '500px',
-      data: usuario
+      width: '650px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: usuario,
+      disableClose: true,
+      autoFocus: false,
+      restoreFocus: false,
+      panelClass: 'custom-dialog-container',
+      hasBackdrop: true,
+      backdropClass: 'custom-backdrop'
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Implementar actualización del usuario cuando esté disponible la API
-        console.log('Usuario actualizado:', result);
+      if (result === true) {
         console.log('Usuario actualizado exitosamente');
         this.loadUsuarios(); // Recargar la tabla
       }

@@ -1,13 +1,41 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { UsuarioTableData, UsuarioEstatus, UsuarioSexo } from '../../../Models/usuario/usuario.model';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { UsuarioTableData, UsuarioSexo, UsuarioEstatus } from '../../../Models/usuario/usuario.model';
+import { AuthService } from '../../../Services/auth';
+
+// Validador personalizado para confirmar contraseñas
+function passwordMatchValidator(control: AbstractControl): {[key: string]: any} | null {
+  const password = control.get('contraseña');
+  const confirmPassword = control.get('confirmarContraseña');
+  
+  if (password && confirmPassword && password.value && confirmPassword.value) {
+    if (password.value !== confirmPassword.value) {
+      return { passwordMismatch: true };
+    }
+    
+    // Validar longitud mínima si se proporciona contraseña
+    if (password.value.length < 8) {
+      return { passwordTooShort: true };
+    }
+  }
+  
+  // Si se llena una contraseña, ambas deben estar llenas
+  if ((password?.value && !confirmPassword?.value) || (!password?.value && confirmPassword?.value)) {
+    return { passwordIncomplete: true };
+  }
+  
+  return null;
+}
 
 @Component({
   selector: 'app-edit-user-dialog',
@@ -20,109 +48,14 @@ import { UsuarioTableData, UsuarioEstatus, UsuarioSexo } from '../../../Models/u
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatOptionModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
-  template: `
-    <h2 mat-dialog-title>
-      <mat-icon>edit</mat-icon>
-      Editar Usuario
-    </h2>
-    
-    <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
-      <mat-dialog-content class="dialog-content">
-        <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Nombre de Usuario</mat-label>
-            <input matInput formControlName="nombreUsuario" placeholder="Ingrese el nombre de usuario">
-            <mat-error *ngIf="editForm.get('nombreUsuario')?.hasError('required')">
-              El nombre de usuario es requerido
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email" placeholder="usuario@ejemplo.com">
-            <mat-error *ngIf="editForm.get('email')?.hasError('required')">
-              El email es requerido
-            </mat-error>
-            <mat-error *ngIf="editForm.get('email')?.hasError('email')">
-              Ingrese un email válido
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Sexo</mat-label>
-            <mat-select formControlName="sexo">
-              <mat-option [value]="0">Masculino</mat-option>
-              <mat-option [value]="1">Femenino</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
-            <mat-select formControlName="estatus">
-              <mat-option [value]="1">Activo</mat-option>
-              <mat-option [value]="0">Inactivo</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </mat-dialog-content>
-
-      <mat-dialog-actions align="end" class="dialog-actions">
-        <button mat-button type="button" (click)="onCancel()">
-          <mat-icon>close</mat-icon>
-          Cancelar
-        </button>
-        <button 
-          mat-raised-button 
-          color="primary" 
-          type="submit"
-          [disabled]="editForm.invalid || isLoading">
-          <mat-icon>save</mat-icon>
-          {{ isLoading ? 'Guardando...' : 'Guardar' }}
-        </button>
-      </mat-dialog-actions>
-    </form>
-  `,
-  styles: [`
-    .dialog-content {
-      min-width: 400px;
-      padding: 16px 0;
-    }
-
-    .form-grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .form-grid mat-form-field {
-      width: 100%;
-    }
-
-    .dialog-actions {
-      padding: 16px 0;
-      gap: 12px;
-    }
-
-    h2[mat-dialog-title] {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 0;
-    }
-
-    @media (max-width: 600px) {
-      .dialog-content {
-        min-width: 300px;
-      }
-      
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  `]
+  templateUrl: './edit-user-dialog.component.html',
+  styleUrls: ['./edit-user-dialog.component.css']
 })
 export class EditUserDialogComponent {
   editForm: FormGroup;
@@ -130,15 +63,22 @@ export class EditUserDialogComponent {
 
   constructor(
     private fb: FormBuilder,
+    private authService: AuthService,
+    private snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<EditUserDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: UsuarioTableData
   ) {
     this.editForm = this.fb.group({
       nombreUsuario: [data.nombreUsuario, [Validators.required, Validators.minLength(3)]],
       email: [data.email, [Validators.required, Validators.email]],
-      sexo: [data.sexo, [Validators.required]],
-      estatus: [data.estatus, [Validators.required]]
-    });
+      contraseña: [''], // Opcional
+      confirmarContraseña: [''], // Opcional
+      sexo: [data.sexo !== undefined ? data.sexo : null, [Validators.required]]
+    }, { validators: passwordMatchValidator });
+
+    // Debug: verificar valores iniciales
+    console.log('Datos del usuario:', data);
+    console.log('Valor inicial de sexo:', data.sexo);
   }
 
   onSubmit(): void {
@@ -146,21 +86,40 @@ export class EditUserDialogComponent {
       this.isLoading = true;
       const formValue = this.editForm.value;
       
-      const updatedUser: Partial<UsuarioTableData> = {
-        id: this.data.id,
-        nombreUsuario: formValue.nombreUsuario,
+      const updateData: any = {
         email: formValue.email,
-        sexo: formValue.sexo,
-        estatus: formValue.estatus,
-        sexoText: formValue.sexo === UsuarioSexo.Masculino ? 'Masculino' : 'Femenino',
-        estatusText: formValue.estatus === UsuarioEstatus.Activo ? 'Activo' : 'Inactivo'
+        nombreUsuario: formValue.nombreUsuario,
+        sexo: formValue.sexo
       };
 
-      this.dialogRef.close(updatedUser);
+      // Solo incluir contraseñas si se proporcionaron
+      if (formValue.contraseña && formValue.contraseña.trim()) {
+        updateData.contraseña = formValue.contraseña;
+        updateData.confirmarContraseña = formValue.confirmarContraseña;
+      }
+
+      this.authService.updateUsuario(this.data.id, updateData).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.snackBar.open('Usuario actualizado exitosamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.dialogRef.close(true); // Devolvemos true para indicar éxito
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error actualizando usuario:', error);
+          this.snackBar.open('Error al actualizar usuario: ' + error.message, 'Cerrar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
     }
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 }

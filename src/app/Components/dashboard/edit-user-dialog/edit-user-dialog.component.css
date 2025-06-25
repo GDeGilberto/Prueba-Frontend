@@ -1,0 +1,178 @@
+/* Contenedor principal del modal */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  overflow: hidden;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* Header del modal */
+.modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  background-color: #ffffff;
+  min-height: 400px;
+  position: relative;
+}
+
+/* Footer del modal */
+.modal-footer {
+  background-color: #f8f9fa !important;
+  border-top: 1px solid #e9ecef !important;
+  padding: 1rem 1.5rem;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* Material Form Fields */
+.mat-mdc-form-field {
+  font-size: 14px;
+}
+
+.mat-mdc-form-field-icon-suffix {
+  color: #6c757d;
+}
+
+.mat-mdc-form-field-outline {
+  border-radius: 8px;
+}
+
+/* Material Select */
+.mat-mdc-select-panel {
+  max-height: 250px;
+  border-radius: 8px;
+  z-index: 9999 !important;
+}
+
+/* Asegurar que el overlay del select tenga el z-index correcto */
+::ng-deep .cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  z-index: 9999 !important;
+}
+
+/* Custom select panel class */
+::ng-deep .custom-select-panel {
+  z-index: 9999 !important;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Botones */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+/* Colores personalizados */
+.text-primary {
+  color: #667eea !important;
+}
+
+.text-danger {
+  color: #e74c3c !important;
+}
+
+/* Animaciones */
+.modal-content {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-body {
+    padding: 1rem !important;
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1rem;
+  }
+  
+  .col-md-6 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Material Design enhancements */
+.mat-mdc-outlined-button:not(:disabled) {
+  border-color: #dee2e6;
+}
+
+.mat-mdc-raised-button {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mat-mdc-raised-button:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
