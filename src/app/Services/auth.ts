@@ -52,6 +52,23 @@ export class AuthService {
       );
   }
 
+  register(userData: any): Observable<any> {
+    console.log('🚀 AuthService: Enviando request de registro a:', `${this.apiUrl}/Usuario`);
+    console.log('📝 AuthService: Payload:', userData);
+    
+    return this.http.post<any>(`${this.apiUrl}/Usuario`, userData)
+      .pipe(
+        tap(response => {
+          console.log('✅ AuthService: Usuario registrado exitosamente:', response);
+        }),
+        catchError(error => {
+          console.error('❌ AuthService: Error en registro:', error);
+          console.error('❌ AuthService: Status:', error.status);
+          console.error('❌ AuthService: Error body:', error.error);
+          return throwError(() => new Error(error.error?.message || 'Error al registrar usuario'));
+        })
+      );
+  }
 
   logout(): void {
     localStorage.removeItem('token');
