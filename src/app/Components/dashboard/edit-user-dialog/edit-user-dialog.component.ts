@@ -75,10 +75,6 @@ export class EditUserDialogComponent {
       confirmarContraseña: [''], // Opcional
       sexo: [data.sexo !== undefined ? data.sexo : null, [Validators.required]]
     }, { validators: passwordMatchValidator });
-
-    // Debug: verificar valores iniciales
-    console.log('Datos del usuario:', data);
-    console.log('Valor inicial de sexo:', data.sexo);
   }
 
   onSubmit(): void {

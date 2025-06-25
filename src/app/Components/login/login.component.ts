@@ -66,7 +66,6 @@ export class LoginComponent implements OnInit {
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (response: any) => {
-          console.log('✅ Login exitoso:', response);
           this.successMessage = '¡Login exitoso! Redirigiendo...';
           
           // Redirigir después de mostrar el mensaje
@@ -75,7 +74,6 @@ export class LoginComponent implements OnInit {
           }, 1500);
         },
         error: (error: any) => {
-          console.error('❌ Error en login:', error);
           
           if (error.message) {
             this.errorMessage = error.message;

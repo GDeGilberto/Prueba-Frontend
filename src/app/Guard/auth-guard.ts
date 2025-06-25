@@ -14,13 +14,11 @@ export class authGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const isAuthenticated = this.authService.isLoggedIn();
-    console.log('🛡️ AuthGuard: Verificando acceso a:', state.url, { isAuthenticated });
     
     if (isAuthenticated) {
       return true;
     }
 
-    console.log('🚫 AuthGuard: Acceso denegado, redirigiendo a login');
     this.router.navigate(['/login'], {
       queryParams: { returnUrl: state.url }
     });

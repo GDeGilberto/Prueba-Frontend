@@ -53,7 +53,7 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
 export class DashboardComponent implements OnInit, AfterViewInit {
   private authService = inject(AuthService);
   private router = inject(Router);
-  private dialog = inject(MatDialog);
+  private dialog = inject(MatDialog) as MatDialog;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -75,8 +75,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ];
 
   ngOnInit(): void {
-    console.log('🎯 Dashboard: Componente inicializado');
-    console.log('🔐 Dashboard: Usuario actual:', this.authService.currentUserValue);
     this.loadUsuarios();
   }
 
@@ -89,18 +87,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   loadUsuarios(): void {
-    console.log('📊 Dashboard: Cargando usuarios...');
     this.loading = true;
     this.authService.getUsuarios().subscribe({
       next: (usuarios: Usuario[]) => {
-        console.log('✅ Dashboard: Usuarios recibidos:', usuarios);
         this.usuarios = usuarios;
         this.updateDataSource();
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('❌ Dashboard: Error cargando usuarios:', error);
-        console.log('Error al cargar usuarios');
+        console.error('Error cargando usuarios:', error);
         this.loading = false;
       }
     });
@@ -175,9 +170,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       backdropClass: 'custom-backdrop'
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: boolean | undefined) => {
       if (result === true) {
-        console.log('Usuario actualizado exitosamente');
         this.loadUsuarios(); // Recargar la tabla
       }
     });
@@ -196,12 +190,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
       request$.subscribe({
         next: () => {
-          console.log(`Usuario ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
           this.loadUsuarios(); // Recargar la tabla
         },
         error: (error: any) => {
           console.error('Error actualizando usuario:', error);
-          console.log('Error al actualizar usuario');
         }
       });
     }
@@ -217,10 +209,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   getUsuariosActivos(): number {
-    return this.dataSource.filteredData.filter(u => u.estatus === UsuarioEstatus.Activo).length;
+    return this.dataSource.filteredData.filter((u: UsuarioTableData) => u.estatus === UsuarioEstatus.Activo).length;
   }
 
   getUsuariosInactivos(): number {
-    return this.dataSource.filteredData.filter(u => u.estatus === UsuarioEstatus.Inactivo).length;
+    return this.dataSource.filteredData.filter((u: UsuarioTableData) => u.estatus === UsuarioEstatus.Inactivo).length;
   }
 }
