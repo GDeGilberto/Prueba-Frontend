@@ -19,31 +19,19 @@ html, body {
   height: 100%;
 }
 
-/* Custom styles */
-.login-container {
+/* Background gradient principal - se mantiene aquí para consistencia global */
+.login-container, .dashboard-container {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.dashboard-container {
-  min-height: 100vh;
-  background-color: #f8f9fa;
-}
-
-/* Animaciones suaves */
-.card {
+/* Animaciones suaves - transiciones globales */
+.card, .btn, .nav-link {
   transition: all 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-5px);
-}
-
-.btn {
-  transition: all 0.3s ease;
 }
 
 .btn:hover {

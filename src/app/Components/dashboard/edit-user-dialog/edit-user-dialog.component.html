@@ -1,39 +1,39 @@
 <div class="modal-content shadow-lg border-0">
   <div class="modal-header bg-primary text-white">
     <h4 class="modal-title d-flex align-items-center mb-0">
-      <mat-icon class="me-2">edit</mat-icon>
+      <mat-icon class="me-2 d-none d-sm-block">edit</mat-icon>
       Editar Usuario
     </h4>
   </div>
   
   <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
-    <div class="modal-body p-4">
-      <div class="container-fluid">
-        <div class="row g-3">
-          <div class="col-md-6">
+    <div class="modal-body p-3 p-sm-4">
+      <div class="container-fluid px-0">
+        <div class="row g-2 g-md-3">
+          <div class="col-12 col-md-6">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Nombre de Usuario</mat-label>
               <input matInput formControlName="nombreUsuario" placeholder="Ingrese el nombre de usuario">
               <mat-icon matSuffix>person</mat-icon>
               <mat-error *ngIf="editForm.get('nombreUsuario')?.hasError('required')">
-                El nombre de usuario es requerido
+                El nombre es requerido
               </mat-error>
               <mat-error *ngIf="editForm.get('nombreUsuario')?.hasError('minlength')">
-                Mínimo 3 caracteres
+                Mín. 3 caracteres
               </mat-error>
             </mat-form-field>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Email</mat-label>
               <input matInput type="email" formControlName="email" placeholder="usuario@ejemplo.com">
               <mat-icon matSuffix>email</mat-icon>
               <mat-error *ngIf="editForm.get('email')?.hasError('required')">
-                El email es requerido
+                Email requerido
               </mat-error>
               <mat-error *ngIf="editForm.get('email')?.hasError('email')">
-                Ingrese un email válido
+                Email inválido
               </mat-error>
             </mat-form-field>
           </div>
@@ -107,17 +107,21 @@
     </div>
 
     <div class="modal-footer bg-light border-top">
-      <div class="d-flex justify-content-end gap-2 w-100">
-        <button type="button" class="btn btn-outline-secondary" (click)="onCancel()" [disabled]="isLoading">
-          <mat-icon class="me-1">close</mat-icon>
-          Cancelar
-        </button>
+      <div class="d-flex flex-column flex-sm-row justify-content-sm-end gap-2 w-100">
         <button 
           type="submit" 
-          class="btn btn-primary"
+          class="btn btn-primary order-sm-2"
           [disabled]="editForm.invalid || isLoading">
-          <mat-icon class="me-1">{{ isLoading ? 'hourglass_empty' : 'save' }}</mat-icon>
+          <mat-icon class="me-1 d-none d-sm-inline">{{ isLoading ? 'hourglass_empty' : 'save' }}</mat-icon>
           {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary order-sm-1" 
+          (click)="onCancel()" 
+          [disabled]="isLoading">
+          <mat-icon class="me-1 d-none d-sm-inline">close</mat-icon>
+          Cancelar
         </button>
       </div>
     </div>

@@ -1,109 +1,146 @@
-<div class="dashboard-container">
-  <!-- Header con navegación -->
-  <mat-toolbar color="primary" class="dashboard-header">
-    <mat-icon>dashboard</mat-icon>
-    <span class="header-title">Administración de Usuarios</span>
-    
-    <span class="spacer"></span>
-    
-    <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
-      <i class="fas fa-user-circle"></i>
-      <span *ngIf="currentUser$ | async as user" class="user-name-header">{{ user.nombreUsuario || user.email }}</span>
-    </button>
-    
-    <mat-menu #userMenu="matMenu">
-      <button mat-menu-item (click)="logout()">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Cerrar Sesión</span>
-      </button>
-    </mat-menu>
-  </mat-toolbar>
+<main class="dashboard-container">
+  <!-- Header con navegación usando Bootstrap -->
+  <header>
+    <nav class="navbar navbar-expand-lg bg-white bg-opacity-95 shadow-sm">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center">
+          <mat-icon>dashboard</mat-icon>
+          <h1 class="fs-5 mb-0 ms-2 fw-semibold">Administración de Usuarios</h1>
+        </div>
+        
+        <div class="ms-auto d-flex align-items-center">
+          <button mat-button [matMenuTriggerFor]="userMenu" 
+                class="btn btn-outline-primary rounded-pill d-flex align-items-center">
+            <i class="fas fa-user-circle"></i>
+            <span *ngIf="currentUser$ | async as user" class="ms-2 d-none d-sm-inline">
+              {{ user.nombreUsuario || user.email }}
+            </span>
+          </button>
+          
+          <mat-menu #userMenu="matMenu">
+            <button mat-menu-item (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Cerrar Sesión</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </nav>
+  </header>
 
   <!-- Contenido principal -->
-  <div class="dashboard-content">
+  <div class="container-fluid py-4">
     <!-- Estadísticas resumidas -->
-    <div class="stats-container">
-      <mat-card class="stats-card">
-        <mat-card-content>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <mat-icon class="stat-icon total">group</mat-icon>
-              <div class="stat-info">
-                <div class="stat-number">{{ getTotalUsuarios() }}</div>
-                <div class="stat-label">Total Usuarios</div>
-              </div>
-            </div>
-            
-            <div class="stat-item">
-              <mat-icon class="stat-icon active">check_circle</mat-icon>
-              <div class="stat-info">
-                <div class="stat-number">{{ getUsuariosActivos() }}</div>
-                <div class="stat-label">Usuarios Activos</div>
-              </div>
-            </div>
-            
-            <div class="stat-item">
-              <mat-icon class="stat-icon inactive">cancel</mat-icon>
-              <div class="stat-info">
-                <div class="stat-number">{{ getUsuariosInactivos() }}</div>
-                <div class="stat-label">Usuarios Inactivos</div>
+    <section class="mb-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-body p-0">
+              <div class="row g-0">
+                <div class="col-12 col-md-4">
+                  <div class="d-flex align-items-center p-3 border-bottom border-md-end border-md-bottom-0">
+                    <div class="rounded-circle p-3 bg-primary bg-gradient text-white me-3">
+                      <mat-icon>group</mat-icon>
+                    </div>
+                    <div>
+                      <h2 class="h1 fw-bold mb-0">{{ getTotalUsuarios() }}</h2>
+                      <p class="text-muted text-uppercase small mb-0 fw-medium">Total Usuarios</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-12 col-md-4">
+                  <div class="d-flex align-items-center p-3 border-bottom border-md-end border-md-bottom-0">
+                    <div class="rounded-circle p-3 bg-success bg-gradient text-white me-3">
+                      <mat-icon>check_circle</mat-icon>
+                    </div>
+                    <div>
+                      <h2 class="h1 fw-bold mb-0">{{ getUsuariosActivos() }}</h2>
+                      <p class="text-muted text-uppercase small mb-0 fw-medium">Usuarios Activos</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-12 col-md-4">
+                  <div class="d-flex align-items-center p-3">
+                    <div class="rounded-circle p-3 bg-danger bg-gradient text-white me-3">
+                      <mat-icon>cancel</mat-icon>
+                    </div>
+                    <div>
+                      <h2 class="h1 fw-bold mb-0">{{ getUsuariosInactivos() }}</h2>
+                      <p class="text-muted text-uppercase small mb-0 fw-medium">Usuarios Inactivos</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Tabla de usuarios -->
-    <mat-card class="table-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>people</mat-icon>
-          Lista de Usuarios
-        </mat-card-title>
-      </mat-card-header>
-      
-      <mat-card-content>
-        <!-- Filtros -->
-        <div class="filters-container">
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Buscar usuarios</mat-label>
-            <input 
-              matInput 
-              [(ngModel)]="filtroTexto" 
-              (input)="onFiltroTextoChange()"
-              placeholder="Nombre, email, etc.">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Filtrar por estado</mat-label>
-            <mat-select [(value)]="filtroEstatus" (selectionChange)="onFiltroEstatusChange()">
-              <mat-option *ngFor="let option of estatusOptions" [value]="option.value">
-                {{ option.label }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <button 
-            mat-raised-button 
-            color="accent" 
-            (click)="clearFilters()"
-            class="clear-filters-btn">
-            <mat-icon>clear</mat-icon>
-            Limpiar Filtros
-          </button>
-        </div>
-
-        <!-- Tabla -->
-        <div class="table-container" [class.loading]="loading">
-          <mat-table [dataSource]="dataSource" matSort class="usuarios-table">
+    <section class="mb-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header bg-light py-3">
+              <div class="d-flex align-items-center">
+                <mat-icon class="text-primary me-2">people</mat-icon>
+                <h2 class="h5 card-title fw-bold mb-0">Lista de Usuarios</h2>
+              </div>
+            </div>
             
-            <!-- Columna ID -->
-            <ng-container matColumnDef="id">
-              <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
-              <mat-cell *matCellDef="let usuario">{{ usuario.id }}</mat-cell>
-            </ng-container>
+            <div class="card-body">
+              <!-- Filtros -->
+              <form class="row g-3 mb-4">
+                <div class="col-12 col-md-5 mb-3 mb-md-0">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Buscar usuarios</mat-label>
+                    <input 
+                      matInput 
+                      [(ngModel)]="filtroTexto" 
+                      (input)="onFiltroTextoChange()"
+                      name="filtroTexto"
+                      placeholder="Nombre, email, etc.">
+                    <mat-icon matSuffix>search</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="col-8 col-md-4 mb-3 mb-md-0">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Filtrar por estado</mat-label>
+                    <mat-select [(value)]="filtroEstatus" 
+                               (selectionChange)="onFiltroEstatusChange()"
+                               name="filtroEstatus">
+                      <mat-option *ngFor="let option of estatusOptions" [value]="option.value">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="col-4 col-md-3 d-flex align-items-center">
+                  <button 
+                    type="button"
+                    class="btn btn-outline-secondary w-100" 
+                    (click)="clearFilters()">
+                    <i class="fas fa-times-circle d-none d-sm-inline me-2"></i>
+                    <span class="d-none d-sm-inline">Limpiar</span>
+                    <span class="d-sm-none">✓</span>
+                  </button>
+                </div>
+              </form>
+
+              <!-- Tabla -->
+              <div class="table-container" [class.loading]="loading">
+                <mat-table [dataSource]="dataSource" matSort class="usuarios-table">
+                  
+                  <!-- Columna ID -->
+                  <ng-container matColumnDef="id">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+                    <mat-cell *matCellDef="let usuario">{{ usuario.id }}</mat-cell>
+                  </ng-container>
 
             <!-- Columna Nombre de Usuario -->
             <ng-container matColumnDef="nombreUsuario">
@@ -178,22 +215,25 @@
             <p>Cargando usuarios...</p>
           </div>
 
-          <!-- Sin resultados -->
-          <div *ngIf="!loading && dataSource.filteredData.length === 0" class="no-results">
-            <mat-icon class="no-results-icon">search_off</mat-icon>
-            <h3>No se encontraron usuarios</h3>
-            <p>Intenta ajustar los filtros de búsqueda</p>
+                <!-- Sin resultados -->
+                <div *ngIf="!loading && dataSource.filteredData.length === 0" class="no-results">
+                  <mat-icon class="no-results-icon">search_off</mat-icon>
+                  <h3>No se encontraron usuarios</h3>
+                  <p>Intenta ajustar los filtros de búsqueda</p>
+                </div>
+              </div>
+
+              <!-- Paginador -->
+              <mat-paginator 
+                [pageSizeOptions]="[5, 10, 20, 50]"
+                [pageSize]="10"
+                showFirstLastButtons
+                aria-label="Seleccionar página de usuarios">
+              </mat-paginator>
+            </div>
           </div>
         </div>
-
-        <!-- Paginador -->
-        <mat-paginator 
-          [pageSizeOptions]="[5, 10, 20, 50]"
-          [pageSize]="10"
-          showFirstLastButtons
-          aria-label="Seleccionar página de usuarios">
-        </mat-paginator>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </section>
   </div>
-</div>
+</main>
