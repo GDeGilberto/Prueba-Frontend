@@ -18,7 +18,6 @@ export class RegisterComponent implements OnInit {
 
   registerForm!: FormGroup;
   loading = false;
-  submitted = false;
   errorMessage = '';
   successMessage = '';
   
@@ -26,8 +25,6 @@ export class RegisterComponent implements OnInit {
     { value: 0, label: 'Masculino' },
     { value: 1, label: 'Femenino' }
   ];
-  
-  constructor() {}
 
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
@@ -47,21 +44,16 @@ export class RegisterComponent implements OnInit {
     }, {
       validators: this.passwordMatchValidator
     });
-  } 
+  }
 
-  // Validador personalizado para caracteres alfanuméricos
+  // Validador alfanumérico
   alphanumericValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    if (!alphanumericRegex.test(value)) {
-      return { alphanumeric: true };
-    }
-    return null;
+    return /^[a-zA-Z0-9]+$/.test(value) ? null : { alphanumeric: true };
   }
 
-  // Validador para contraseña fuerte
+  // Validador de contraseña fuerte
   passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
@@ -71,21 +63,14 @@ export class RegisterComponent implements OnInit {
     const hasNumeric = /[0-9]/.test(value);
     const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
 
-    const passwordValid = hasUpperCase && hasLowerCase && hasNumeric && hasSymbol;
-
-    if (!passwordValid) {
-      return { 
-        passwordStrength: {
-          hasUpperCase,
-          hasLowerCase,
-          hasNumeric,
-          hasSymbol
-        }
-      };
+    if (hasUpperCase && hasLowerCase && hasNumeric && hasSymbol) {
+      return null;
     }
-    return null;
+
+    return { passwordStrength: true };
   }
 
+  // Validador para confirmar contraseñas
   passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
     const password = form.get('contraseña');
     const confirmPassword = form.get('confirmarContraseña');
@@ -96,7 +81,6 @@ export class RegisterComponent implements OnInit {
       confirmPassword.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     } else {
-      // Limpiar el error si las contraseñas coinciden
       const errors = confirmPassword.errors;
       if (errors) {
         delete errors['passwordMismatch'];
@@ -108,40 +92,34 @@ export class RegisterComponent implements OnInit {
     return null;
   }
 
-  get f() { return this.registerForm.controls; }
+  onSubmit(): void {
+    if (this.registerForm.valid && !this.loading) {
+      this.loading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
 
-  onSubmit() {
-    this.submitted = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+      const formData = this.registerForm.value;
+      const registerData = {
+        email: formData.email.trim(),
+        nombreUsuario: formData.nombreUsuario.trim(),
+        contraseña: formData.contraseña,
+        confirmarContraseña: formData.confirmarContraseña,
+        sexo: parseInt(formData.sexo)
+      };
 
-    if (this.registerForm.invalid) {
-      return;
+      this.authService.register(registerData)
+        .pipe(finalize(() => this.loading = false))
+        .subscribe({
+          next: (response: any) => {
+            this.successMessage = 'Usuario registrado exitosamente. Redirigiendo...';
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 2000);
+          },
+          error: (error: any) => {
+            this.errorMessage = error.message || 'Error al registrar usuario. Inténtalo de nuevo.';
+          }
+        });
     }
-
-    this.loading = true;
-
-    const formData = this.registerForm.value;
-    const registerData = {
-      email: formData.email,
-      nombreUsuario: formData.nombreUsuario,
-      contraseña: formData.contraseña,
-      confirmarContraseña: formData.confirmarContraseña,
-      sexo: parseInt(formData.sexo)
-    };
-
-    this.authService.register(registerData)
-      .pipe(finalize(() => this.loading = false))
-      .subscribe({
-        next: (response: any) => {
-          this.successMessage = 'Registro exitoso. Redirigiendo al login...';
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
-        },
-        error: (error: any) => {
-          this.errorMessage = error.message || 'Error al registrar usuario. Inténtalo de nuevo.';
-        }
-      });
   }
 }
