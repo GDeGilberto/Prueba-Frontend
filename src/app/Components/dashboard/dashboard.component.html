@@ -1,239 +1,199 @@
-<!-- Dashboard Page - Semantic HTML -->
 <div class="dashboard-container">
+  <!-- Header con navegación -->
+  <mat-toolbar color="primary" class="dashboard-header">
+    <mat-icon>dashboard</mat-icon>
+    <span class="header-title">Administración de Usuarios</span>
+    
+    <span class="spacer"></span>
+    
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+      <i class="fas fa-user-circle"></i>
+      <span *ngIf="currentUser$ | async as user" class="user-name-header">{{ user.nombreUsuario || user.email }}</span>
+    </button>
+    
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow" role="navigation" aria-label="Navegación principal">
-    <div class="container">
-      <a class="navbar-brand" href="#" aria-label="Ir al inicio del dashboard">
-        <i class="fas fa-tachometer-alt me-2" aria-hidden="true"></i>
-        Dashboard
-      </a>
+  <!-- Contenido principal -->
+  <div class="dashboard-content">
+    <!-- Estadísticas resumidas -->
+    <div class="stats-container">
+      <mat-card class="stats-card">
+        <mat-card-content>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <mat-icon class="stat-icon total">group</mat-icon>
+              <div class="stat-info">
+                <div class="stat-number">{{ getTotalUsuarios() }}</div>
+                <div class="stat-label">Total Usuarios</div>
+              </div>
+            </div>
+            
+            <div class="stat-item">
+              <mat-icon class="stat-icon active">check_circle</mat-icon>
+              <div class="stat-info">
+                <div class="stat-number">{{ getUsuariosActivos() }}</div>
+                <div class="stat-label">Usuarios Activos</div>
+              </div>
+            </div>
+            
+            <div class="stat-item">
+              <mat-icon class="stat-icon inactive">cancel</mat-icon>
+              <div class="stat-info">
+                <div class="stat-number">{{ getUsuariosInactivos() }}</div>
+                <div class="stat-label">Usuarios Inactivos</div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>people</mat-icon>
+          Lista de Usuarios
+        </mat-card-title>
+      </mat-card-header>
       
-      <div class="navbar-nav ms-auto">
-        <div class="nav-item dropdown">
+      <mat-card-content>
+        <!-- Filtros -->
+        <div class="filters-container">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Buscar usuarios</mat-label>
+            <input 
+              matInput 
+              [(ngModel)]="filtroTexto" 
+              (input)="onFiltroTextoChange()"
+              placeholder="Nombre, email, etc.">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filtrar por estado</mat-label>
+            <mat-select [(value)]="filtroEstatus" (selectionChange)="onFiltroEstatusChange()">
+              <mat-option *ngFor="let option of estatusOptions" [value]="option.value">
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
           <button 
-            class="nav-link dropdown-toggle d-flex align-items-center btn btn-link text-white border-0" 
-            type="button"
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"
-            aria-haspopup="true"
-            [attr.aria-label]="'Menú de usuario: ' + (user?.nombreUsuario || user?.email)">
-            <i class="fas fa-user-circle me-2" aria-hidden="true"></i>
-            <span>{{ user?.nombreUsuario || user?.email }}</span>
+            mat-raised-button 
+            color="accent" 
+            (click)="clearFilters()"
+            class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            Limpiar Filtros
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user-menu">
-            <li>
-              <button class="dropdown-item" type="button" (click)="viewProfile()">
-                <i class="fas fa-user me-2" aria-hidden="true"></i>
-                Perfil
-              </button>
-            </li>
-            <li>
-              <button class="dropdown-item" type="button" (click)="viewSettings()">
-                <i class="fas fa-cog me-2" aria-hidden="true"></i>
-                Configuración
-              </button>
-            </li>
-            <li><hr class="dropdown-divider" role="separator"></li>
-            <li>
-              <button class="dropdown-item text-danger" type="button" (click)="logout()">
-                <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>
-                Cerrar Sesión
-              </button>
-            </li>
-          </ul>
         </div>
-      </div>
-    </div>
-  </nav>
 
-  <main class="main-content" role="main">
-    <div class="container mt-4">
-      <!-- Welcome Section -->
-      <section class="welcome-section mb-4" aria-labelledby="welcome-title">
-        <div class="row">
-          <div class="col-12">
-            <article class="card bg-primary text-white welcome-card">
-              <div class="card-body">
-                <div class="row align-items-center">
-                  <div class="col-md-8">
-                    <header>
-                      <h1 id="welcome-title" class="h2 mb-1">
-                        ¡Bienvenido de vuelta, {{ user?.nombreUsuario || 'Usuario' }}!
-                      </h1>
-                      <p class="mb-0 opacity-75">
-                        Es un gusto tenerte aquí. Aquí tienes un resumen de tu cuenta.
-                      </p>
-                    </header>
-                  </div>
-                  <div class="col-md-4 text-center">
-                    <i class="fas fa-user-check fa-3x opacity-75" aria-hidden="true"></i>
-                  </div>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
+        <!-- Tabla -->
+        <div class="table-container" [class.loading]="loading">
+          <mat-table [dataSource]="dataSource" matSort class="usuarios-table">
+            
+            <!-- Columna ID -->
+            <ng-container matColumnDef="id">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+              <mat-cell *matCellDef="let usuario">{{ usuario.id }}</mat-cell>
+            </ng-container>
 
-      <section class="stats-section mb-4" aria-labelledby="stats-title">
-        <h2 id="stats-title" class="h3 mb-3">Estadísticas</h2>
-        <div class="row g-4">
-          <div class="col-xl-3 col-md-6">
-            <article class="card stat-card h-100">
-              <div class="card-body text-center">
-                <div class="stat-icon bg-primary bg-gradient rounded-circle mb-3 mx-auto">
-                  <i class="fas fa-calendar-check text-white" aria-hidden="true"></i>
+            <!-- Columna Nombre de Usuario -->
+            <ng-container matColumnDef="nombreUsuario">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Usuario</mat-header-cell>
+              <mat-cell *matCellDef="let usuario">
+                <div class="user-cell">
+                  <mat-icon class="user-avatar">account_circle</mat-icon>
+                  <span class="user-name">{{ usuario.nombreUsuario }}</span>
                 </div>
-                <h3 class="stat-number h1 mb-1">{{ stats.sesionesActivas }}</h3>
-                <p class="stat-label text-muted mb-0">Sesiones Activas</p>
-              </div>
-            </article>
-          </div>
-          
-          <div class="col-xl-3 col-md-6">
-            <article class="card stat-card h-100">
-              <div class="card-body text-center">
-                <div class="stat-icon bg-success bg-gradient rounded-circle mb-3 mx-auto">
-                  <i class="fas fa-chart-line text-white" aria-hidden="true"></i>
-                </div>
-                <h3 class="stat-number h1 mb-1">{{ stats.actividadDiaria }}</h3>
-                <p class="stat-label text-muted mb-0">Actividad Diaria</p>
-              </div>
-            </article>
-          </div>
-          
-          <div class="col-xl-3 col-md-6">
-            <article class="card stat-card h-100">
-              <div class="card-body text-center">
-                <div class="stat-icon bg-warning bg-gradient rounded-circle mb-3 mx-auto">
-                  <i class="fas fa-bell text-white" aria-hidden="true"></i>
-                </div>
-                <h3 class="stat-number h1 mb-1">{{ stats.notificaciones }}</h3>
-                <p class="stat-label text-muted mb-0">Notificaciones</p>
-              </div>
-            </article>
-          </div>
-          
-          <div class="col-xl-3 col-md-6">
-            <article class="card stat-card h-100">
-              <div class="card-body text-center">
-                <div class="stat-icon bg-info bg-gradient rounded-circle mb-3 mx-auto">
-                  <i class="fas fa-tasks text-white" aria-hidden="true"></i>
-                </div>
-                <h3 class="stat-number h1 mb-1">{{ stats.tareasCompletadas }}</h3>
-                <p class="stat-label text-muted mb-0">Tareas Completadas</p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
+              </mat-cell>
+            </ng-container>
 
-      <section class="user-info-section mb-4" aria-labelledby="user-info-title">
-        <div class="row">
-          <div class="col-lg-8">
-            <article class="card info-card h-100">
-              <div class="card-header">
-                <h2 id="user-info-title" class="h4 mb-0">
-                  <i class="fas fa-user-circle me-2" aria-hidden="true"></i>
-                  Información del Usuario
-                </h2>
-              </div>
-              <div class="card-body">
-                <dl class="user-details row">
-                  <dt class="col-sm-4">ID Usuario:</dt>
-                  <dd class="col-sm-8">{{ user?.id || 'No disponible' }}</dd>
-                  
-                  <dt class="col-sm-4">Email:</dt>
-                  <dd class="col-sm-8">{{ user?.email || 'No disponible' }}</dd>
-                  
-                  <dt class="col-sm-4">Nombre de Usuario:</dt>
-                  <dd class="col-sm-8">{{ user?.nombreUsuario || 'No disponible' }}</dd>
-                  
-                  <dt class="col-sm-4">Estado:</dt>
-                  <dd class="col-sm-8">
-                    <span class="badge bg-success">
-                      <i class="fas fa-check-circle me-1" aria-hidden="true"></i>
-                      Activo
-                    </span>
-                  </dd>
-                  
-                  <dt class="col-sm-4">Última conexión:</dt>
-                  <dd class="col-sm-8">{{ currentDate | date:'medium':'es' }}</dd>
-                </dl>
-              </div>
-            </article>
-          </div>
-          
-          <div class="col-lg-4">
-            <aside class="card actions-card h-100" role="complementary" aria-labelledby="quick-actions-title">
-              <div class="card-header">
-                <h2 id="quick-actions-title" class="h4 mb-0">
-                  <i class="fas fa-bolt me-2" aria-hidden="true"></i>
-                  Acciones Rápidas
-                </h2>
-              </div>
-              <div class="card-body">
-                <div class="d-grid gap-2">
-                  <button class="btn btn-outline-primary" type="button" (click)="viewProfile()">
-                    <i class="fas fa-user-edit me-2" aria-hidden="true"></i>
-                    Editar Perfil
+            <!-- Columna Email -->
+            <ng-container matColumnDef="email">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Email</mat-header-cell>
+              <mat-cell *matCellDef="let usuario">{{ usuario.email }}</mat-cell>
+            </ng-container>
+
+            <!-- Columna Sexo -->
+            <ng-container matColumnDef="sexo">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Sexo</mat-header-cell>
+              <mat-cell *matCellDef="let usuario">
+                <mat-chip [class]="'sexo-chip-' + usuario.sexo">
+                  <mat-icon>{{ usuario.sexo === 0 ? 'male' : 'female' }}</mat-icon>
+                  {{ usuario.sexoText }}
+                </mat-chip>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Estado -->
+            <ng-container matColumnDef="estatus">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Estado</mat-header-cell>
+              <mat-cell *matCellDef="let usuario">
+                <mat-chip [class]="'status-chip-' + usuario.estatus">
+                  <mat-icon>{{ usuario.estatus === 1 ? 'check_circle' : 'cancel' }}</mat-icon>
+                  {{ usuario.estatusText }}
+                </mat-chip>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Acciones -->
+            <ng-container matColumnDef="acciones">
+              <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+              <mat-cell *matCellDef="let usuario">
+                <div class="actions-cell">
+                  <button 
+                    mat-icon-button 
+                    color="primary" 
+                    (click)="editarUsuario(usuario)"
+                    matTooltip="Editar usuario">
+                    <mat-icon>edit</mat-icon>
                   </button>
-                  <button class="btn btn-outline-secondary" type="button" (click)="viewSettings()">
-                    <i class="fas fa-cogs me-2" aria-hidden="true"></i>
-                    Configuraciones
-                  </button>
-                  <button class="btn btn-outline-info" type="button" (click)="viewReports()">
-                    <i class="fas fa-chart-bar me-2" aria-hidden="true"></i>
-                    Ver Reportes
-                  </button>
-                  <hr>
-                  <button class="btn btn-outline-danger" type="button" (click)="logout()">
-                    <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>
-                    Cerrar Sesión
+                  
+                  <button 
+                    mat-icon-button 
+                    [color]="usuario.estatus === 1 ? 'warn' : 'accent'"
+                    (click)="eliminarUsuario(usuario)"
+                    [matTooltip]="usuario.estatus === 1 ? 'Desactivar usuario' : 'Activar usuario'">
+                    <mat-icon>{{ usuario.estatus === 1 ? 'block' : 'check_circle' }}</mat-icon>
                   </button>
                 </div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </section>
+              </mat-cell>
+            </ng-container>
 
-      <section class="activity-section" aria-labelledby="activity-title">
-        <div class="row">
-          <div class="col-12">
-            <article class="card">
-              <div class="card-header">
-                <h2 id="activity-title" class="h4 mb-0">
-                  <i class="fas fa-clock me-2" aria-hidden="true"></i>
-                  Actividad Reciente
-                </h2>
-              </div>
-              <div class="card-body">
-                <div *ngIf="recentActivity && recentActivity.length > 0; else noActivity">
-                  <ul class="list-group list-group-flush">
-                    <li *ngFor="let activity of recentActivity; trackBy: trackByActivityId" 
-                        class="list-group-item d-flex align-items-center">
-                      <div class="activity-icon me-3">
-                        <i class="fas fa-circle text-primary" aria-hidden="true"></i>
-                      </div>
-                      <div class="activity-content flex-grow-1">
-                        <div class="activity-description">{{ activity.description }}</div>
-                        <small class="text-muted">{{ activity.timestamp | date:'short':'es' }}</small>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <ng-template #noActivity>
-                  <div class="text-center py-4">
-                    <i class="fas fa-history fa-3x text-muted mb-3" aria-hidden="true"></i>
-                    <p class="text-muted">No hay actividad reciente que mostrar.</p>
-                  </div>
-                </ng-template>
-              </div>
-            </article>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;" class="usuario-row"></mat-row>
+          </mat-table>
+
+          <!-- Estado de carga -->
+          <div *ngIf="loading" class="loading-overlay">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p>Cargando usuarios...</p>
+          </div>
+
+          <!-- Sin resultados -->
+          <div *ngIf="!loading && dataSource.filteredData.length === 0" class="no-results">
+            <mat-icon class="no-results-icon">search_off</mat-icon>
+            <h3>No se encontraron usuarios</h3>
+            <p>Intenta ajustar los filtros de búsqueda</p>
           </div>
         </div>
-      </section>
-    </div>
-  </main>
+
+        <!-- Paginador -->
+        <mat-paginator 
+          [pageSizeOptions]="[5, 10, 20, 50]"
+          [pageSize]="10"
+          showFirstLastButtons
+          aria-label="Seleccionar página de usuarios">
+        </mat-paginator>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

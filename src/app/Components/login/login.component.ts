@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../Environments/enviroment';
+import { AuthService } from '../../Services/auth';
 
 @Component({
   selector: 'app-login',
@@ -20,19 +20,18 @@ export class LoginComponent implements OnInit {
   successMessage = '';
   showPassword = false;
   environment = environment;
+  returnUrl = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private http: HttpClient
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    // Verificar si ya está autenticado
-    if (localStorage.getItem('token')) {
-      this.router.navigate(['/dashboard']);
-      return;
-    }
+    // Obtener la URL de retorno si existe
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -63,35 +62,25 @@ export class LoginComponent implements OnInit {
     
     const credentials = this.loginForm.value;
 
-    this.http.post(`${environment.apiUrl}/Usuario/login`, credentials)
+    this.authService.login(credentials)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (response: any) => {
           console.log('✅ Login exitoso:', response);
           this.successMessage = '¡Login exitoso! Redirigiendo...';
           
-          // Guardar datos de usuario
-          if (response.token) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('currentUser', JSON.stringify(response));
-          }
-          
           // Redirigir después de mostrar el mensaje
           setTimeout(() => {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate([this.returnUrl]);
           }, 1500);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('❌ Error en login:', error);
           
-          if (error.status === 0) {
-            this.errorMessage = 'No se puede conectar al servidor. Verifica que la API esté corriendo.';
-          } else if (error.status === 401) {
-            this.errorMessage = 'Credenciales inválidas. Verifica tu email y contraseña.';
-          } else if (error.status === 404) {
-            this.errorMessage = 'Servicio no encontrado. Verifica la configuración de la API.';
+          if (error.message) {
+            this.errorMessage = error.message;
           } else {
-            this.errorMessage = error.error?.message || 'Error inesperado. Intenta nuevamente.';
+            this.errorMessage = 'Error inesperado. Intenta nuevamente.';
           }
         }
       });

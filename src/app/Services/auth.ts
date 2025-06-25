@@ -70,14 +70,55 @@ export class AuthService {
       );
   }
 
+  getUsuarios(): Observable<any[]> {
+    const token = this.getToken();
+    console.log('🚀 AuthService: Obteniendo usuarios de:', `${this.apiUrl}/Usuario`);
+    console.log('🔑 AuthService: Token disponible:', !!token);
+    console.log('🔑 AuthService: Token (primeros 50 chars):', token ? token.substring(0, 50) + '...' : 'No token');
+    
+    return this.http.get<any[]>(`${this.apiUrl}/Usuario`)
+      .pipe(
+        tap(response => {
+          console.log('✅ AuthService: Usuarios obtenidos exitosamente:', response);
+        }),
+        catchError(error => {
+          console.error('❌ AuthService: Error obteniendo usuarios:', error);
+          console.error('❌ AuthService: Status:', error.status);
+          console.error('❌ AuthService: Error body:', error.error);
+          console.error('❌ AuthService: Headers:', error.headers);
+          return throwError(() => new Error(error.error?.message || 'Error al obtener usuarios'));
+        })
+      );
+  }
+
+  updateUsuarioEstatus(id: number, estatus: number): Observable<any> {
+    console.log('🚀 AuthService: Actualizando estatus del usuario:', id, 'a:', estatus);
+    
+    return this.http.put<any>(`${this.apiUrl}/Usuario/${id}/estatus`, { estatus })
+      .pipe(
+        tap(response => {
+          console.log('✅ AuthService: Estatus actualizado exitosamente:', response);
+        }),
+        catchError(error => {
+          console.error('❌ AuthService: Error actualizando estatus:', error);
+          return throwError(() => new Error(error.error?.message || 'Error al actualizar usuario'));
+        })
+      );
+  }
+
   logout(): void {
+    console.log('🚪 AuthService: Cerrando sesión...');
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
+    console.log('✅ AuthService: Sesión cerrada exitosamente');
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    const isAuthenticated = !!token;
+    console.log('🔐 AuthService: Verificando autenticación:', { token: !!token, isAuthenticated });
+    return isAuthenticated;
   }
 
   getToken(): string | null {
