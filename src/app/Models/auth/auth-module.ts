@@ -1,15 +1,3 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-@NgModule({
-  declarations: [],
-  imports: [
-    CommonModule
-  ]
-})
-
-export class AuthModule { }
-
 export interface LoginRequest {
   email: string;
   contraseña: string;

@@ -16,8 +16,6 @@ export const authInterceptorFn: HttpInterceptorFn = (request: HttpRequest<unknow
   const router = inject(Router);
   
   const token = authService.getToken();
-  console.log('🔐 AuthInterceptor: Interceptando request a:', request.url);
-  console.log('🔑 AuthInterceptor: Token disponible:', !!token);
   
   if (token) {
     const clonedRequest = request.clone({
@@ -25,14 +23,10 @@ export const authInterceptorFn: HttpInterceptorFn = (request: HttpRequest<unknow
         Authorization: `Bearer ${token}`
       }
     });
-    console.log('✅ AuthInterceptor: Header Authorization agregado');
-    console.log('📤 AuthInterceptor: Request headers:', clonedRequest.headers.keys());
     
     return next(clonedRequest).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ AuthInterceptor: Error en request:', error);
         if (error.status === 401) {
-          console.log('🚪 AuthInterceptor: Token inválido, cerrando sesión');
           authService.logout();
           router.navigate(['/login']);
         }
@@ -40,10 +34,8 @@ export const authInterceptorFn: HttpInterceptorFn = (request: HttpRequest<unknow
       })
     );
   } else {
-    console.log('⚠️ AuthInterceptor: No hay token, enviando request sin Authorization');
     return next(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ AuthInterceptor: Error en request sin token:', error);
         if (error.status === 401) {
           authService.logout();
           router.navigate(['/login']);

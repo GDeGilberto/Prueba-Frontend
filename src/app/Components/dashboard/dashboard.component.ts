@@ -15,7 +15,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../Services/auth';
@@ -41,7 +40,6 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
     MatChipsModule,
     MatDialogModule,
     MatMenuModule,
-    MatDividerModule,
     MatTooltipModule,
     MatProgressSpinnerModule
   ],
@@ -167,7 +165,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // TODO: Llamar al servicio para actualizar el usuario
+        // Implementar actualización del usuario cuando esté disponible la API
         console.log('Usuario actualizado:', result);
         console.log('Usuario actualizado exitosamente');
         this.loadUsuarios(); // Recargar la tabla
