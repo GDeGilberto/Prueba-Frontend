@@ -156,38 +156,6 @@
               </div>
             </form>
 
-            <!-- Development Test Data -->
-            <aside 
-              *ngIf="!environment.production" 
-              class="test-data-section mt-4 p-3 bg-light rounded"
-              role="complementary"
-              aria-labelledby="test-data-title">
-              <h2 id="test-data-title" class="h6 text-muted mb-2">
-                <i class="fas fa-flask me-2" aria-hidden="true"></i>
-                Datos de prueba:
-              </h2>
-              <dl class="test-credentials">
-                <dt class="sr-only">Email de prueba:</dt>
-                <dd>
-                  <small class="text-muted d-block">Email: usuario&#64;test.com</small>
-                </dd>
-                <dt class="sr-only">Contraseña de prueba:</dt>
-                <dd>
-                  <small class="text-muted d-block">Contraseña: Usuario!90</small>
-                </dd>
-              </dl>
-              <button 
-                type="button" 
-                class="btn btn-outline-primary btn-sm mt-2"
-                (click)="fillTestData()"
-                aria-describedby="fill-test-help">
-                <i class="fas fa-fill-drip me-1" aria-hidden="true"></i>
-                Llenar datos de prueba
-              </button>
-              <small id="fill-test-help" class="sr-only">
-                Completa automáticamente el formulario con datos de prueba
-              </small>
-            </aside>
           </div>
         </article>
       </div>
