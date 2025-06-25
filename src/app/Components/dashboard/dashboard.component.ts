@@ -174,13 +174,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   eliminarUsuario(usuario: UsuarioTableData): void {
-    const nuevoEstatus = usuario.estatus === UsuarioEstatus.Activo ? UsuarioEstatus.Inactivo : UsuarioEstatus.Activo;
-    const accion = nuevoEstatus === UsuarioEstatus.Activo ? 'activar' : 'inactivar';
+    const isActivo = usuario.estatus === UsuarioEstatus.Activo;
+    const accion = isActivo ? 'desactivar' : 'activar';
     
     if (confirm(`¿Estás seguro de que quieres ${accion} al usuario ${usuario.nombreUsuario}?`)) {
-      this.authService.updateUsuarioEstatus(usuario.id, nuevoEstatus).subscribe({
+      // Si el usuario está activo, usar DELETE para desactivarlo
+      // Si está inactivo, usar PUT para activarlo
+      const request$ = isActivo 
+        ? this.authService.deleteUsuario(usuario.id)
+        : this.authService.updateUsuarioEstatus(usuario.id, UsuarioEstatus.Activo);
+
+      request$.subscribe({
         next: () => {
-          console.log(`Usuario ${accion === 'activar' ? 'activado' : 'inactivado'} exitosamente`);
+          console.log(`Usuario ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`);
           this.loadUsuarios(); // Recargar la tabla
         },
         error: (error: any) => {

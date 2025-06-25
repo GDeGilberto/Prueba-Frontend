@@ -78,6 +78,17 @@ export class AuthService {
       );
   }
 
+  deleteUsuario(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/Usuario/${id}`)
+      .pipe(
+        tap(response => {
+        }),
+        catchError(error => {
+          return throwError(() => new Error(error.error?.message || 'Error al desactivar usuario'));
+        })
+      );
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
